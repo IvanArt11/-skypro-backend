@@ -1,7 +1,8 @@
 {
-  "name": "-skypro-backend",
+  "name": "skypro-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Шаблон для выполнения второго домашнего задания",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
