@@ -3,15 +3,15 @@ const getUsers = require("./modules/users");
 const hostname = "127.0.0.1";
 const port = 3003;
 
-const server = http.createServer((request, response) => {
+const server = http.createServer(async (request, response) => {
   // Парсим URL запроса
   const url = new URL(request.url, `http://${hostname}:${port}`);
 
-  // Если запрос не к корневому эндпоинту, возвращаем 500
+  // Возвращаем 404, если путь не тот
   if (url.pathname !== "/") {
-    response.statusCode = 500;
+    response.statusCode = 404;
     response.setHeader("Content-Type", "text/plain");
-    response.write("");
+    response.write("Not Found");
     response.end();
     return;
   }
@@ -26,39 +26,36 @@ const server = http.createServer((request, response) => {
         response.setHeader("Content-Type", "text/plain");
         response.write(`Hello, ${name}.`);
         response.end();
-        return;
       } else {
         // Если параметр hello указан, но отсутствует значение
         response.statusCode = 400;
         response.setHeader("Content-Type", "text/plain");
         response.write("Enter a name");
         response.end();
-        return;
       }
     } else if (url.searchParams.has("users")) {
       // Если есть параметр users, возвращаем данные пользователей
+      const users = await getUsers();
       response.statusCode = 200;
       response.setHeader("Content-Type", "application/json");
-      response.write(JSON.stringify(getUsers()));
+      response.write(JSON.stringify(users));
       response.end();
-      return;
     } else {
       // Если переданы другие параметры запроса
       response.statusCode = 500;
       response.setHeader("Content-Type", "text/plain");
-      response.write("");
+      response.write("Bad Request");
       response.end();
-      return;
     }
+  } else {
+    // Если параметры не переданы, возвращаем приветственное сообщение
+    response.statusCode = 200;
+    response.setHeader("Content-Type", "text/plain");
+    response.write("Hello, world!");
+    response.end();
   }
-
-  // Если параметры не переданы, возвращаем приветственное сообщение
-  response.statusCode = 200;
-  response.setHeader("Content-Type", "text/plain");
-  response.write("Hello, world!");
-  response.end();
 });
 
 server.listen(port, hostname, () => {
-  console.log(`Сервер запущен по адресу http://${hostname}:${port}`);
+  console.log(`Сервер запущен по адресу http://${hostname}:${port}/`);
 });
